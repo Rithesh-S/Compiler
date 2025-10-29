@@ -4,4 +4,4 @@ output/*
 
 #script file
 src/*
-!src/.init.k
+!src/.gitkeep
