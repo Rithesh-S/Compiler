@@ -1,5 +1,7 @@
 #compiler exe file
 output/*
+!output/.gitkeep
 
 #script file
 src/*
+!src/.init.k
