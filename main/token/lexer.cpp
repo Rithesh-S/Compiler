@@ -63,21 +63,22 @@ void Lexer::scanToken() {
         case '>': addToken(TokenType::GREATER_THAN); break;
         case '<': 
             if(match('-')) {
+                a:
                 while(peek() != '-'&& !isAtEnd()){
                     if(peek() == '\n') line_++;
                     advance();
                 }
 
                 if(isAtEnd()) {
-                    cerr<<"Line "<<line_<<": Unterminated comment."<<endl;
+                    cerr<<"Line "<<line_<<": Unterminated comment, expected '>'"<<endl;
                     break; 
                 }
                 advance();
 
                 if(match('>')) {}
                 else {
-                    while(!isAtEnd()) { advance(); }
-                    cerr<<"Line "<<line_<<": Unterminated comment, expected '>'"<<endl;
+                    advance();
+                    goto a;
                 }
             } else {
                 addToken(TokenType::LESSER_THAN); break;

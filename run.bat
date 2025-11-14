@@ -1,6 +1,6 @@
 @echo off
 echo --- Building...
-g++ main/main.cpp main/token/lexer.cpp -o output/build -std=c++17 -g
+g++ main/main.cpp main/token/lexer.cpp main/parser/Parser.cpp main/print/AstPrinter.cpp -o output/build -std=c++17 -g
 
 REM Stop if the build failed
 if %errorlevel% neq 0 (
