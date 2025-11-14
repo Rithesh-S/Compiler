@@ -10,6 +10,7 @@
 #include "parser/expr/Expr.h"
 #include "parser/Parser.h"
 #include "print/AstPrinter.h"
+#include "interpreter/Interpreter.h"
 
 using namespace std;
 
@@ -25,6 +26,11 @@ void run(const string& source) {
             AstPrinter astPrinter;
             cout<<" --- AST --- "<<endl;
             cout<<astPrinter.print(ast)<<endl;
+
+            Interpreter interpreter;
+            double ans = interpreter.interpret(ast);
+            cout<<" --- Result --- "<<endl;
+            cout<<ans<<endl;
         } else {
             cout<<" --- AST(null) --- "<<endl;
         }
