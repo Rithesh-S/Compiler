@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include <stdexcept>
+#include <vector>
 
 using namespace std;
 
@@ -11,8 +12,12 @@ subtraction, Factor defines the division and multiplication, and Primary defines
 The AST is constructed and the root pointer is returned.
 */
 
-unique_ptr<Expr> Parser::parse() {
-    return expression();
+vector<unique_ptr<Stmt>> Parser::parse() {
+    vector<unique_ptr<Stmt>> statements;
+    while(!isAtEnd()) {
+        statements.push_back(declaration());
+    }
+    return statements;
 }
 
 unique_ptr<Expr> Parser::expression() {
@@ -51,6 +56,10 @@ unique_ptr<Expr> Parser::primary() {
         return make_unique<Literal>(previous().lex); // make_unique is the another form of unique_ptr
     }
 
+    if(match({TokenType::IDENTIFIER})) {
+        return make_unique<Variable>(previous());
+    }
+
     if(match({TokenType::LEFT_PAREN})) {
         unique_ptr<Expr> expr = expression();
         consume(TokenType::RIGHT_PAREN,"Expected ')' after expression.");
@@ -58,6 +67,40 @@ unique_ptr<Expr> Parser::primary() {
     }
 
     throw runtime_error("Expected Expression, found " + peek().lex);
+}
+
+unique_ptr<Stmt> Parser::declaration() {
+    try {
+        if(match({ TokenType::V_ })) {
+            return varDeclaration();
+        }
+        return statement();
+    } catch(const runtime_error& e) {
+        throw runtime_error(e.what());
+        return nullptr;
+    }
+}
+
+unique_ptr<Stmt> Parser::varDeclaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expected variable name.");
+    unique_ptr<Expr> initializer = nullptr;
+
+    if(match({TokenType::EQUAL})) {
+        initializer = expression();
+    }
+
+    consume(TokenType::SEMICOLON,"Expected ;");
+    return make_unique<VarStmt>(name, move(initializer));
+}
+
+unique_ptr<Stmt> Parser::statement() {
+    return expressionStatment();
+}
+
+unique_ptr<Stmt> Parser::expressionStatment() {
+    unique_ptr<Expr> expr = expression();
+    consume(TokenType::SEMICOLON,"Expected ;");
+    return make_unique<ExpressionStmt>(move(expr));
 }
 
 // ---- Helpers ----

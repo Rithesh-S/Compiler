@@ -1,6 +1,12 @@
 #include "Lexer.h"
 #include <iostream>
+#include <map>
 using namespace std;
+
+// Identifiers
+map<string, TokenType> keywords = {
+    { "v_", TokenType::V_ }
+};
 
 Lexer::Lexer(string source) : source_(move(source)) {}
 
@@ -50,6 +56,39 @@ void Lexer::number() {
     addToken(TokenType::NUMBER);
 }
 
+bool Lexer::isAlpha(char c) {
+    return (
+        (c >= 'a' && c <= 'z') || 
+        (c >= 'A' && c <= 'Z') ||
+        (c == '_')
+    );
+}
+
+bool Lexer::isAlphaNumeric(char c) {
+    return isAlpha(c) || isDigit(c);
+}
+
+// advances as long as it is alphanumeric and checks whether it is a keyword and adds accordingly.
+void Lexer::identifier() {
+    while(isAlphaNumeric(peek())) advance();
+
+    string text = source_.substr(start_,current_ - start_);
+
+    if(keywords.count(text)) {
+        addToken(keywords[text]);
+    } else {
+        addToken(TokenType::IDENTIFIER);
+    }
+
+}
+
+bool Lexer::match(char expected) {
+    if(isAtEnd()) return false;
+    if(source_[current_] != expected) return false;
+    current_++;
+    return true;
+}
+
 //scans the individual characters
 void Lexer::scanToken() {
     char c = advance();
@@ -61,6 +100,8 @@ void Lexer::scanToken() {
         case '*': addToken(TokenType::ASTERISK); break;
         case '/': addToken(TokenType::SLASH); break;
         case '>': addToken(TokenType::GREATER_THAN); break;
+        case '=': addToken(TokenType::EQUAL); break;
+        case ';': addToken(TokenType::SEMICOLON); break;
         case '<': 
             if(match('-')) {
                 a:
@@ -96,6 +137,8 @@ void Lexer::scanToken() {
         default:
             if(isDigit(c)) {
                 number();
+            } else if(isAlpha(c)) {
+                identifier();
             } else {
                 cerr<<"Line"<<line_<<" : Unexpected Character '"<<c<<"'"<<endl;
             }
@@ -103,9 +146,3 @@ void Lexer::scanToken() {
     }
 }
 
-bool Lexer::match(char expected) {
-    if(isAtEnd()) return false;
-    if(source_[current_] != expected) return false;
-    current_++;
-    return true;
-}

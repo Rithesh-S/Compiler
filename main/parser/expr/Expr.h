@@ -10,22 +10,24 @@
 class Binary;
 class Grouping;
 class Literal;
+class Variable;
 
 /* The virtual keyword is primarily used on member functions to enable runtime polymorphism 
 (dynamic binding) within a class hierarchy. This ensures that the correct function 
 implementation is called based on the actual object's type, rather than the type of the 
 pointer or reference used to access it */
 
-/* 'virtual any visitedBinaryExpr(Binary& expr) = 0;' Represents that function is pure 
+/* 'virtual any visitBinaryExpr(Binary& expr) = 0;' Represents that function is pure 
 virtual function expecting the derieved class to write the definition */
 
 // Visitors Implementation: 
 class ExprVisitor {
 public:
     virtual ~ExprVisitor() = default;
-    virtual std::any visitedBinaryExpr(Binary& expr) = 0; 
-    virtual std::any visitedGroupingExpr(Grouping& expr) = 0;
-    virtual std::any visitedLiteralExpr(Literal& expr) = 0;
+    virtual std::any visitBinaryExpr(Binary& expr) = 0; 
+    virtual std::any visitGroupingExpr(Grouping& expr) = 0;
+    virtual std::any visitLiteralExpr(Literal& expr) = 0;
+    virtual std::any visitVariableExpr(Variable& expr) = 0;
 };
 
 // Base Class
@@ -45,7 +47,7 @@ public:
     const std::string value;
     Literal(std::string val) : value(move(val)) {}
     std::any accept(ExprVisitor& visitor) override {     //double dispatch
-        return visitor.visitedLiteralExpr(*this);
+        return visitor.visitLiteralExpr(*this);
     }
 };
 
@@ -63,7 +65,7 @@ public:
         left(move(left)), op(move(token)), right(move(right)) {}
 
     std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitedBinaryExpr(*this);
+        return visitor.visitBinaryExpr(*this);
     }
 };
 
@@ -76,6 +78,18 @@ public:
         expression(move(expression)) {}
 
     std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitedGroupingExpr(*this);
+        return visitor.visitGroupingExpr(*this);
+    }
+};
+
+class Variable : public Expr {
+public:
+    Token name;
+
+    Variable(Token name)
+        : name(std::move(name)) {}
+    
+    std::any accept(ExprVisitor& visitor) {
+        return visitor.visitVariableExpr(*this);
     }
 };

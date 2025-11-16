@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "expr/Expr.h"
+#include "stmt/Stmt.h"
 #include "../token/type/Token.h"
 #include "../token/type/TokenType.h"
 
@@ -10,7 +11,7 @@
 class Parser {
 public:
     Parser(std::vector<Token> tokens);
-    std::unique_ptr<Expr> parse();
+    std::vector<std::unique_ptr<Stmt>> parse();
 
 private:
     std::vector<Token> tokens_;
@@ -20,6 +21,11 @@ private:
     std::unique_ptr<Expr> term();
     std::unique_ptr<Expr> factor();
     std::unique_ptr<Expr> primary();
+
+    std::unique_ptr<Stmt> declaration();
+    std::unique_ptr<Stmt> varDeclaration();
+    std::unique_ptr<Stmt> statement();
+    std::unique_ptr<Stmt> expressionStatment();
 
     bool isAtEnd();
     Token advance();

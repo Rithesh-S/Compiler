@@ -18,15 +18,15 @@ double Interpreter::evaluate(Expr* expr) {
     return any_cast<double>(expr -> accept(*this));
 }
 
-any Interpreter::visitedLiteralExpr(Literal& expr) {
+any Interpreter::visitLiteralExpr(Literal& expr) {
     return stod(expr.value);
 }
 
-any Interpreter::visitedGroupingExpr(Grouping& expr) {
+any Interpreter::visitGroupingExpr(Grouping& expr) {
     return evaluate(expr.expression.get());
 }
 
-any Interpreter::visitedBinaryExpr(Binary& expr) {
+any Interpreter::visitBinaryExpr(Binary& expr) {
     double right = evaluate(expr.right.get());
     double left = evaluate(expr.left.get());
 

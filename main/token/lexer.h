@@ -25,10 +25,13 @@ private:
     void scanToken();
     char advance();
     void addToken(TokenType type);
+    void number();
+    void identifier();
 
     char peek();
     bool isDigit(char c);
-    void number();
+    bool isAlpha(char c);
+    bool isAlphaNumeric(char c);
     bool match(char expected);
 
 };
